@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { fetchWeather } from '../services/weatherService';
+import { getCoordinates, fetchWeather } from '../services/weatherService';
 
 export function useWeather() {
     const [weather, setWeather] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const load = async (lat: number, lon: number) => {
+
+    const load = async (city: string) => {
         setLoading(true);
         setError(null);
         try {
-            const data = await fetchWeather(lat, lon);
-            setWeather(data);
+            const coords = await getCoordinates(city);
+            const data = await fetchWeather(coords.lat, coords.lon);
+            setWeather({ ...data, name: coords.displayName });
         } catch (e: any) {
             setError(e.message);
         } finally {

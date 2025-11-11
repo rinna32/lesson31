@@ -1,57 +1,28 @@
-import React, { useState } from 'react'
-import { useLocalStorage } from './hooks/useLocalStorage'
-import { useWeather } from './hooks/useWeather'
-import { WeatherCard } from './components/WeatherCard'
-import { HistoryList } from './components/HistoryList'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import HomePage from './components/HomePage';
+import WeatherSearchPage from './components/WeatherSearchPage'; // Твой бывший App.tsx
+import WeatherDisplayPage from './components/WeatherDisplayPage'; // Для параметризованного роута
+import About from './components/About';
 
-export default function App() {
-  const { weather, loading, error, load } = useWeather()
-  const [history, setHistory] = useLocalStorage<string[]>('history', [])
-  const [city, setCity] = useState<string>('')
-
-  const handleSearch = async () => {
-    const q = city.trim()
-    if (!q) {
-      alert('Введите название города')
-      return
-    }
-
-    try {
-      await load(q)
-      setHistory([...history, q])
-    } catch (e) {
-      console.error(e)
-      alert('Ошибка при загрузке погоды')
-    }
-  }
-
+function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex justify-center items-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-6">
-        <h1 className="text-xl font-semibold mb-3 text-center">Приложение Погоды</h1>
-
-        <div className="flex gap-2 mb-3">
-          <input
-            value={city}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCity(e.target.value)}
-            placeholder="Введите город"
-            className="flex-1 border rounded px-3 py-2"
-          />
-          <button
-            onClick={handleSearch}
-            className="bg-sky-500 text-white px-3 py-2 rounded"
-          >
-            Поиск
-          </button>
-        </div>
-
-        {loading && <div>Загрузка...</div>}
-        {error ? <div className="text-red-600">Ошибка: {error}</div> : null}
-        {!loading && weather && <WeatherCard weather={weather} />}
-
-        <h3 className="mt-4 font-medium">История запросов</h3>
-        <HistoryList history={history} />
+    <Router>
+      <div className="min-h-screen bg-slate-100"> {/* Используем твой фон */}
+        <Header /> {/* Навигационная панель */}
+        <main className="container mx-auto p-4"> {/* Контейнер для содержимого страниц */}
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/search-weather" element={<WeatherSearchPage />} />
+            <Route path="/weather/:city" element={<WeatherDisplayPage />} />
+            <Route path="/about" element={<About />} />
+            {/* Если у тебя есть другие компоненты, добавь для них роуты */}
+          </Routes>
+        </main>
       </div>
-    </div>
-  )
+    </Router>
+  );
 }
+
+export default App;
